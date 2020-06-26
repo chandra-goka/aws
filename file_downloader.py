@@ -1,24 +1,23 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
+from datetime import datetime
 import os
 
-download_dir = "/tmp/downloads/"
+LOGIN_URL = "https://squaw.nic.fr//login"
+USER = "CSC_SQUAW"
+PASS = "v2SsAgzqtTHwu6Jg"
+download_dir = "/tmp/fr/"
 
 def enable_download(browser):
     browser.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
     params = {'cmd':'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_dir}}
     browser.execute("send_command", params)
 
-def isFileDownloaded():
-    file_path = download_dir+"/python_samples-master.zip"
-    while not os.path.exists(file_path):
-        time.sleep(1)
-    if os.path.isfile(file_path):
-        print("File Downloaded successfully..")
-
 def setting_chrome_options():
     chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-gpu')
@@ -39,10 +38,28 @@ def setting_chrome_options():
     return chrome_options;
 
 def lambda_handler(event, context):
-    print("Started Lambda..")
-    DOWNLOAD_URL = "https://github.com/chandrashekhargoka/python_samples/archive/master.zip"
+    day = datetime.today().strftime('%Y%m%d')
+    DOWNLOAD_URL = "https://squaw.nic.fr/app.php/download/domain-names-{}.{}".format(day,"zip")
     driver = webdriver.Chrome(options=setting_chrome_options())
+    print("loading URL")
+    driver.get(LOGIN_URL)
+    print("Loaded URL")
+    driver.find_element_by_id("login_username").send_keys(USER)
+    driver.find_element_by_id("login_password").send_keys(PASS)
+    print("Before Login click")
+    driver.find_element_by_class_name("authentication_btn").click()
+    enable_download(driver)
+    time.sleep(10)
+    print("After sleep..")
     driver.get(DOWNLOAD_URL)
-    isFileDownloaded()
+    time.sleep(20)
+    file_path = "/tmp/fr/domain-names-{}.{}".format(day,"zip")
+    while not os.path.exists(file_path):
+        time.sleep(10)
+    if os.path.isfile(file_path):
+        print("File hasbeen downloaded at "+file_path)
+    else:
+        raise ValueError("%s isn't a file!" % file_path)
+    print("After download complete..")
     return "success"
 
