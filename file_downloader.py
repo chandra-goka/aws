@@ -4,9 +4,9 @@ import time
 from datetime import datetime
 import os
 
-LOGIN_URL = "https://squaw.nic.fr//login"
-USER = "CSC_SQUAW"
-PASS = "v2SsAgzqtTHwu6Jg"
+LOGIN_URL = "https://otp.demo.com//login"
+USER = "demo"
+PASS = "demo"
 download_dir = "/tmp/fr/"
 
 def enable_download(browser):
@@ -39,7 +39,7 @@ def setting_chrome_options():
 
 def lambda_handler(event, context):
     day = datetime.today().strftime('%Y%m%d')
-    DOWNLOAD_URL = "https://squaw.nic.fr/app.php/download/domain-names-{}.{}".format(day,"zip")
+    DOWNLOAD_URL = "https://otp.demo.com/domain-names-{}.{}".format(day,"zip")
     driver = webdriver.Chrome(options=setting_chrome_options())
     print("loading URL")
     driver.get(LOGIN_URL)
@@ -57,7 +57,7 @@ def lambda_handler(event, context):
     while not os.path.exists(file_path):
         time.sleep(10)
     if os.path.isfile(file_path):
-        print("File hasbeen downloaded at "+file_path)
+        print("File has been downloaded at "+file_path)
     else:
         raise ValueError("%s isn't a file!" % file_path)
     print("After download complete..")
