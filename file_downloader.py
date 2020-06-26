@@ -39,6 +39,7 @@ def setting_chrome_options():
     return chrome_options;
 
 def lambda_handler(event, context):
+    print("Started Lambda..")
     DOWNLOAD_URL = "https://github.com/chandrashekhargoka/python_samples/archive/master.zip"
     driver = webdriver.Chrome(options=setting_chrome_options())
     driver.get(DOWNLOAD_URL)
